@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Terminal, {
   ColorMode,
   TerminalInput,
@@ -9,16 +9,7 @@ import git from "./assets/github-logo.png";
 import linkedin from "./assets/linkedin-logo.png";
 import email from "./assets/email .png";
 
-const App = (props = {}) => {
-  const [terminalLineData, setTerminalLineData] = useState([
-    <TerminalOutput key={0}>
-      {/* <div className="bg-red-[200]">
-        <h2 className="text-3xl font-bold ">Christos Diamantakis</h2>
-        <h3>React Developer</h3>
-        <h4>Type "help" to see list of available commands.</h4>
-      </div> */}
-    </TerminalOutput>,
-  ]);
+const App = () => {
   const [lineData, setLineData] = useState([
     <TerminalOutput key={0}>
       <div className="bg-red-[200]">
@@ -29,61 +20,18 @@ const App = (props = {}) => {
     </TerminalOutput>,
   ]);
 
-  const handleInput = (terminalInput: string) => {
-    // Split input into command and arguments
-    const [command, ...args] = terminalInput.trim().split(" ");
-
-    // Handle different commands
-    switch (command) {
-      case "help":
-        setTerminalLineData((prevData) => [
-          ...prevData,
-          <TerminalOutput key={prevData.length}>
-            <div>
-              <p>List of available commands:</p>
-              <ul>
-                <li>help</li>
-                <li>whoami</li>
-                <li>experience</li>
-                <li>skills</li>
-                <li>education</li>
-                <li>clear</li>
-              </ul>
-            </div>
-          </TerminalOutput>,
-        ]);
-        break;
-      case "whoami":
-        setTerminalLineData((prevData) => [
-          ...prevData,
-          <TerminalOutput key={prevData.length}>
-            <div>
-              <p>Name: Christos Diamantakis</p>
-              <p>Role: React Developer</p>
-              <p>Bio: Lorem ipsum dolor sit amet...</p>
-            </div>
-          </TerminalOutput>,
-        ]);
-        break;
-      default:
-        setTerminalLineData((prevData) => [
-          ...prevData,
-          <TerminalOutput key={prevData.length}>
-            <p>Command not found: {terminalInput}</p>
-          </TerminalOutput>,
-        ]);
-        break;
-    }
-  };
-
   function onInput(input: string) {
     let ld = [...lineData];
-    ld.push(<TerminalInput>{input}</TerminalInput>);
+    ld.push(
+      <div>
+        <TerminalInput>{input}</TerminalInput>
+      </div>
+    );
     if (input.toLocaleLowerCase().trim() === "help") {
       ld.push(
         <TerminalOutput>
           <div>
-            <p>List of available commands:</p>
+            <p>Available commands:</p>
             <ul>
               <li>help</li>
               <li>whoami</li>
@@ -119,12 +67,131 @@ const App = (props = {}) => {
           </div>
         </div>
       );
+    } else if (input.toLocaleLowerCase().trim() === "education") {
+      ld.push(
+        <div className="break-normal my-2">
+          <p className=" font-bold text-2xl">
+            Bachelor's in Applied Informatics
+          </p>
+          <p className="italic text-[#ffce00]">University of Macedonia</p>
+          <p>December 2021</p>
+        </div>
+      );
+    } else if (input.toLocaleLowerCase().trim() === "skills") {
+      ld.push(
+        <div className="break-normal my-2 flex">
+          <ol>
+            <li className="my-4">
+              Programming & Scripting Languages
+              <ul className="font-bold text-white">
+                <li>Typescript/Javascript (Node.js), Bash</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Markup & Style Sheet Languages
+              <ul className="font-bold text-white">
+                <li>HTML, CSS</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Frameworks & Libraries
+              <ul className="font-bold text-white">
+                <li>
+                  React, React Native, Angular, Redux, GraphQL, Tailwind CSS,
+                  D3.js
+                </li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Containerization
+              <ul className="font-bold text-white">
+                <li>Docker</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Databases
+              <ul className="font-bold text-white">
+                <li>MongoDB, SQL, PostgreSQL</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Authentication
+              <ul className="font-bold text-white">
+                <li>Keycloak, Clerk</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Version Control Systems
+              <ul className="font-bold text-white">
+                <li>Git</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Miscellaneous
+              <ul className="font-bold text-white">
+                <li>Latex, Postman, Figma, VSCode</li>
+              </ul>
+            </li>
+            <li className="my-4">
+              Languages
+              <ul className="font-bold text-white">
+                <li>
+                  Greek (Native proficiency), English (Professional working
+                  proficiency), French (Certificate in French Language)
+                </li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      );
+    } else if (input.toLocaleLowerCase().trim() === "experience") {
+      ld.push(
+        <div className="break-normal my-2">
+          <p className="break-normal font-bold">
+            Software Engineer - Research and Development Associate
+          </p>
+          <p className="italic text-[#ffce00]">
+            Centre for Research and Technology Hellas (CERTH) / Information
+            Technologies Institute (ITI)
+          </p>
+          <ol>
+            <li>
+              Research, design and development of a robust and responsive Web
+              applications.
+            </li>
+            <li>
+              Participation in drafting technical documentation and project
+              deliverables.
+            </li>
+            <li>
+              Introduction of new technologies, tools and technical workflows.
+            </li>
+          </ol>
+          <p className="font-bold">April 2022 - Present</p>
+        </div>
+      );
     } else if (input.toLocaleLowerCase().trim() === "clear") {
-      ld = [];
+      ld = [
+        <TerminalOutput key={0}>
+          <div className="bg-red-[200]">
+            <h2 className="text-3xl font-bold ">Christos Diamantakis</h2>
+            <h3>React Developer</h3>
+            <h4>Type "help" to see list of available commands.</h4>
+          </div>
+        </TerminalOutput>,
+      ];
     } else if (input) {
       ld.push(<TerminalOutput>Unrecognized command</TerminalOutput>);
     }
     setLineData(ld);
+  }
+
+  // Handle key press events
+  function handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Tab") {
+      // Implement command completion logic here
+      console.log("Tab pressed, implement command completion logic");
+    }
   }
 
   return (
