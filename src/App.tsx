@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Terminal, {
   ColorMode,
   TerminalInput,
@@ -184,14 +184,6 @@ const App = () => {
       ld.push(<TerminalOutput>Unrecognized command</TerminalOutput>);
     }
     setLineData(ld);
-  }
-
-  // Handle key press events
-  function handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Tab") {
-      // Implement command completion logic here
-      console.log("Tab pressed, implement command completion logic");
-    }
   }
 
   return (
