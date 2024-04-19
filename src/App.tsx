@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Terminal, {
   ColorMode,
   TerminalInput,
   TerminalOutput,
 } from "react-terminal-ui";
+
+import { ReactTyped } from "react-typed";
 
 import git from "./assets/github-logo.png";
 import linkedin from "./assets/linkedin-logo.png";
@@ -13,7 +15,15 @@ const App = () => {
   const [lineData, setLineData] = useState([
     <TerminalOutput key={0}>
       <div className="bg-red-[200]">
-        <h2 className="text-3xl font-bold ">Christos Diamantakis</h2>
+        <h2 className="text-3xl font-bold ">
+          <ReactTyped
+            strings={["Christos Diamantakis"]}
+            typeSpeed={80}
+            backSpeed={50}
+            loop
+          />
+        </h2>
+
         <h3>React Developer</h3>
         <h4>Type "help" to see list of available commands.</h4>
       </div>
@@ -154,19 +164,19 @@ const App = () => {
             Centre for Research and Technology Hellas (CERTH) / Information
             Technologies Institute (ITI)
           </p>
-          <ol>
+          <ul className="list-disc text-red-200 my-2">
             <li>
-              Research, design and development of a robust and responsive Web
+              - Research, design and development of a robust and responsive Web
               applications.
             </li>
             <li>
-              Participation in drafting technical documentation and project
+              - Participation in drafting technical documentation and project
               deliverables.
             </li>
             <li>
-              Introduction of new technologies, tools and technical workflows.
+              - Introduction of new technologies, tools and technical workflows.
             </li>
-          </ol>
+          </ul>
           <p className="font-bold text-sm">April 2022 - Present</p>
           <p className="font-bold mt-2">Contribution to research projects:</p>
           <ol>
