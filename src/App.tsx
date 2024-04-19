@@ -167,7 +167,41 @@ const App = () => {
               Introduction of new technologies, tools and technical workflows.
             </li>
           </ol>
-          <p className="font-bold">April 2022 - Present</p>
+          <p className="font-bold text-sm">April 2022 - Present</p>
+          <p className="font-bold mt-2">Contribution to research projects:</p>
+          <ol>
+            <li className="my-2">
+              <p className="font-bold text-[#ffce00] italic text-xl">
+                <a href="https://fever-h2020.eu/">Fever</a>
+              </p>
+              <p>
+                Developed the Graphical User Interfaces with React.js and React
+                Native providing users to register, single-on authorization with
+                Keycloak, preform transactions as well as managing the members
+                registration and transaction requests making use the
+                infastructure of project consortium.
+              </p>
+            </li>
+            <li className="my-2">
+              <p className="font-bold text-[#9ebf46] italic text-xl">
+                <a href="https://pop-machina.eu/">POP-MACHINA</a>
+              </p>
+              <p>
+                Worked in in the debbuging and beautification of the trading
+                platform of the project built with Angular.js.
+              </p>
+            </li>
+            <li className="my-2">
+              <p className="font-bold text-[#508784] italic text-xl">
+                <a href="https://odin-smarthospitals.eu/">ODIN</a>
+              </p>
+              <p>
+                Created an administration platform for manipulating and
+                monitoring the resources of hospitals connected in the IoT and
+                visualize patients data with D3.js. library
+              </p>
+            </li>
+          </ol>
         </div>
       );
     } else if (input.toLocaleLowerCase().trim() === "clear") {
