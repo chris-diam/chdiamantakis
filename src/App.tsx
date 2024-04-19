@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Terminal, {
   ColorMode,
   TerminalInput,
@@ -37,6 +37,9 @@ const App = () => {
       colorMode === ColorMode.Light ? ColorMode.Dark : ColorMode.Light
     );
   };
+  useEffect(() => {
+    console.log("color changed");
+  }, [colorMode]);
 
   function onInput(input: string) {
     let ld = [...lineData];
@@ -168,16 +171,11 @@ const App = () => {
           <p className="break-normal font-bold">
             Software Engineer - Research and Development Associate
           </p>
-          <p
-            className={
-              colorMode === ColorMode.Light
-                ? "italic text-[#D76D77]"
-                : "italic text-[#ffce00]"
-            }
-          >
+          <p className="italic text-[#D76D77]">
             Centre for Research and Technology Hellas (CERTH) / Information
             Technologies Institute (ITI)
           </p>
+          <p className="font-bold text-sm italic">April 2022 - Present</p>
           <ul className="list-disc  my-2">
             <li>
               - Research, design and development of a robust and responsive Web
@@ -191,12 +189,12 @@ const App = () => {
               - Introduction of new technologies, tools and technical workflows.
             </li>
           </ul>
-          <p className="font-bold text-sm">April 2022 - Present</p>
+
           <p className="font-bold mt-2">Contribution to research projects:</p>
           <ol>
             <li className="my-2">
-              <p className="font-bold text-[#ffce00] italic text-xl">
-                <a href="https://fever-h2020.eu/">Fever</a>
+              <p className="font-bold text-[#ffce00]  text-xl">
+                <a href="https://fever-h2020.eu/">FEVER</a>
               </p>
               <p>
                 Developed the Graphical User Interfaces with React.js and React
@@ -207,7 +205,7 @@ const App = () => {
               </p>
             </li>
             <li className="my-2">
-              <p className="font-bold text-[#9ebf46] italic text-xl">
+              <p className="font-bold text-[#9ebf46]  text-xl">
                 <a href="https://pop-machina.eu/">POP-MACHINA</a>
               </p>
               <p>
@@ -216,7 +214,7 @@ const App = () => {
               </p>
             </li>
             <li className="my-2">
-              <p className="font-bold text-[#508784] italic text-xl">
+              <p className="font-bold text-[#508784]  text-xl">
                 <a href="https://odin-smarthospitals.eu/">ODIN</a>
               </p>
               <p>
