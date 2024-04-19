@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Terminal, {
   ColorMode,
   TerminalInput,
@@ -30,6 +30,14 @@ const App = () => {
     </TerminalOutput>,
   ]);
 
+  const [colorMode, setColorMode] = useState(ColorMode.Dark);
+
+  const handleColorChange = () => {
+    setColorMode(
+      colorMode === ColorMode.Light ? ColorMode.Dark : ColorMode.Light
+    );
+  };
+
   function onInput(input: string) {
     let ld = [...lineData];
     ld.push(
@@ -41,7 +49,7 @@ const App = () => {
       ld.push(
         <TerminalOutput>
           <div>
-            <p>Available commands:</p>
+            <p className="font-bold">Available commands:</p>
             <ul>
               <li>help</li>
               <li>whoami</li>
@@ -160,11 +168,17 @@ const App = () => {
           <p className="break-normal font-bold">
             Software Engineer - Research and Development Associate
           </p>
-          <p className="italic text-[#ffce00]">
+          <p
+            className={
+              colorMode === ColorMode.Light
+                ? "italic text-[#D76D77]"
+                : "italic text-[#ffce00]"
+            }
+          >
             Centre for Research and Technology Hellas (CERTH) / Information
             Technologies Institute (ITI)
           </p>
-          <ul className="list-disc text-red-200 my-2">
+          <ul className="list-disc  my-2">
             <li>
               - Research, design and development of a robust and responsive Web
               applications.
@@ -231,13 +245,16 @@ const App = () => {
   }
 
   return (
-    <div className=" md:w-full">
+    <div className=" md:w-full ">
       <Terminal
-        colorMode={ColorMode.Dark}
+        colorMode={colorMode}
         onInput={onInput}
         prompt="$"
         height="100vh"
       >
+        <button onClick={handleColorChange}>
+          Enable {colorMode === ColorMode.Light ? "Dark" : "Light"} Mode
+        </button>
         {lineData}
       </Terminal>
     </div>
