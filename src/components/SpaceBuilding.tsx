@@ -10,6 +10,7 @@ interface SpaceBuildingProps {
   position: [number, number, number];
   playerPosition: [number, number, number];
   onInteract?: (type: BuildingType) => void;
+  hidePrompt?: boolean;
 }
 
 const BUILDING_CONFIG: Record<BuildingType, {
@@ -49,7 +50,7 @@ const BUILDING_CONFIG: Record<BuildingType, {
   },
 };
 
-export function SpaceBuilding({ type, position, playerPosition, onInteract }: SpaceBuildingProps) {
+export function SpaceBuilding({ type, position, playerPosition, hidePrompt = false }: SpaceBuildingProps) {
   const config = BUILDING_CONFIG[type];
   const groupRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Mesh>(null);
@@ -209,7 +210,7 @@ export function SpaceBuilding({ type, position, playerPosition, onInteract }: Sp
             >
               {config.name}
             </div>
-            {isNearby && (
+            {isNearby && !hidePrompt && (
               <div
                 className="mt-2 text-xs text-cyan-400 bg-black/70 px-3 py-1 rounded animate-pulse border border-cyan-400/50"
                 style={{ textShadow: '0 0 5px #00ffff' }}

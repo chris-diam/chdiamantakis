@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TileType } from '../types';
@@ -227,7 +227,7 @@ function BuildingTile({ position, variant = 0 }: { position: [number, number, nu
 }
 
 // Fence tile
-function FenceTile({ position, variant = 0 }: { position: [number, number, number]; variant?: number }) {
+function FenceTile({ position }: { position: [number, number, number]; variant?: number }) {
   return (
     <group position={position}>
       {/* Ground */}

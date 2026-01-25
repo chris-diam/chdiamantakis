@@ -6,8 +6,9 @@ import { GameWorld3D } from './GameWorld3D';
 import { Astronaut3D } from './Astronaut3D';
 import { SpaceBuilding, BuildingType } from './SpaceBuilding';
 import { SpaceEnvironment } from './SpaceEnvironment';
-import { PortfolioModal } from './PortfolioModal';
+import { BuildingInterior } from './BuildingInterior';
 import { useAuth } from '../context/AuthContext';
+// PortfolioModal removed - now using BuildingInterior for immersive experience
 import { useSocket } from '../hooks/useSocket';
 import { gameMap, PORTFOLIO_BUILDINGS } from '../data/gameMap';
 import { Direction, Position, Character } from '../types';
@@ -65,16 +66,61 @@ function isWalkable3D(x: number, z: number): boolean {
   return true;
 }
 
-// Camera that follows the player
+// Camera that follows the player with smooth lookAt and zoom
 function FollowCamera({ target }: { target: React.RefObject<THREE.Group | null> }) {
-  const { camera } = useThree();
-  const offset = new THREE.Vector3(0, 12, 10);
+  const { camera, gl } = useThree();
+  const zoomLevel = useRef(1); // 1 = default, smaller = zoomed in
+  const targetZoom = useRef(1);
+  const smoothLookAt = useRef(new THREE.Vector3(0, 0, 0));
+  const smoothPosition = useRef(new THREE.Vector3(0, 12, 10));
+  const initialized = useRef(false);
+
+  // Zoom constraints
+  const MIN_ZOOM = 0.3; // Very close
+  const MAX_ZOOM = 1.5; // Far away
+  const ZOOM_SPEED = 0.1;
+
+  // Handle scroll wheel for zoom
+  useEffect(() => {
+    const canvas = gl.domElement;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? ZOOM_SPEED : -ZOOM_SPEED;
+      targetZoom.current = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, targetZoom.current + delta));
+    };
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', handleWheel);
+  }, [gl]);
 
   useFrame(() => {
     if (target.current) {
-      const targetPosition = target.current.position.clone().add(offset);
-      camera.position.lerp(targetPosition, 0.05);
-      camera.lookAt(target.current.position);
+      // Smooth zoom interpolation
+      zoomLevel.current += (targetZoom.current - zoomLevel.current) * 0.1;
+
+      // Calculate offset based on zoom level
+      const baseOffset = new THREE.Vector3(0, 12, 10);
+      const offset = baseOffset.multiplyScalar(zoomLevel.current);
+
+      const targetCameraPos = target.current.position.clone().add(offset);
+      const targetLookAt = target.current.position.clone();
+
+      // Initialize on first frame
+      if (!initialized.current) {
+        smoothPosition.current.copy(targetCameraPos);
+        smoothLookAt.current.copy(targetLookAt);
+        camera.position.copy(targetCameraPos);
+        initialized.current = true;
+      }
+
+      // Smooth camera position
+      smoothPosition.current.lerp(targetCameraPos, 0.08);
+      camera.position.copy(smoothPosition.current);
+
+      // Smooth lookAt target
+      smoothLookAt.current.lerp(targetLookAt, 0.08);
+      camera.lookAt(smoothLookAt.current);
     }
   });
 
@@ -107,6 +153,8 @@ function Player3DScene({
   const actualRef = playerRef || groupRef;
 
   useFrame(() => {
+    // Only lerp position for other players (not current player)
+    // Current player position is directly controlled in the game loop
     if (actualRef.current && !isCurrentPlayer) {
       actualRef.current.position.lerp(
         new THREE.Vector3(position[0], position[1], position[2]),
@@ -115,8 +163,13 @@ function Player3DScene({
     }
   });
 
+  // For current player, don't set position prop (it's controlled via ref)
+  // For other players, set initial position
   return (
-    <group ref={actualRef as React.Ref<THREE.Group>} position={position}>
+    <group
+      ref={actualRef as React.Ref<THREE.Group>}
+      position={isCurrentPlayer ? undefined : position}
+    >
       <Astronaut3D
         character={character}
         direction={direction}
@@ -189,20 +242,22 @@ function GameScene({
   const playerRef = useRef<THREE.Group>(null);
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
+  const hasInitialized = useRef(false);
 
   const keysPressed = useRef<Set<string>>(new Set());
 
-  // Initialize position from server
+  // Initialize position from server ONLY ONCE when first connecting
   useEffect(() => {
-    if (myPlayer) {
+    if (myPlayer && !hasInitialized.current) {
       const [x, y, z] = pixelToWorld(myPlayer.position);
       setPlayerWorldPosition([x, y, z]);
       setDirection(myPlayer.direction);
       if (playerRef.current) {
         playerRef.current.position.set(x, y, z);
       }
+      hasInitialized.current = true;
     }
-  }, [myPlayer?.position.x, myPlayer?.position.y, setPlayerWorldPosition]);
+  }, [myPlayer, setPlayerWorldPosition]);
 
   // Handle keyboard input for movement only
   useEffect(() => {
@@ -314,25 +369,25 @@ function GameScene({
         type="about"
         position={tileToWorld(PORTFOLIO_BUILDINGS.about.tileX, PORTFOLIO_BUILDINGS.about.tileY)}
         playerPosition={playerWorldPosition}
-        onInteract={onBuildingInteract}
+        hidePrompt={isModalOpen}
       />
       <SpaceBuilding
         type="techstack"
         position={tileToWorld(PORTFOLIO_BUILDINGS.techstack.tileX, PORTFOLIO_BUILDINGS.techstack.tileY)}
         playerPosition={playerWorldPosition}
-        onInteract={onBuildingInteract}
+        hidePrompt={isModalOpen}
       />
       <SpaceBuilding
         type="projects"
         position={tileToWorld(PORTFOLIO_BUILDINGS.projects.tileX, PORTFOLIO_BUILDINGS.projects.tileY)}
         playerPosition={playerWorldPosition}
-        onInteract={onBuildingInteract}
+        hidePrompt={isModalOpen}
       />
       <SpaceBuilding
         type="contact"
         position={tileToWorld(PORTFOLIO_BUILDINGS.contact.tileX, PORTFOLIO_BUILDINGS.contact.tileY)}
         playerPosition={playerWorldPosition}
-        onInteract={onBuildingInteract}
+        hidePrompt={isModalOpen}
       />
 
       {/* Other players */}
@@ -382,7 +437,8 @@ export const Game3D: React.FC = () => {
   const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [localChatMessage, setLocalChatMessage] = useState('');
-  const [activeModal, setActiveModal] = useState<BuildingType | null>(null);
+  const [insideBuilding, setInsideBuilding] = useState<BuildingType | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [playerWorldPosition, setPlayerWorldPosition] = useState<[number, number, number]>([0, 0, 0]);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const chatLogRef = useRef<HTMLDivElement>(null);
@@ -405,29 +461,34 @@ export const Game3D: React.FC = () => {
     setIsChatting(false);
   }, [chatInput, sendChatMessage]);
 
-  // Handle building interaction
+  // Handle building interaction with transition
   const handleBuildingInteract = useCallback((type: BuildingType) => {
-    setActiveModal(type);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setInsideBuilding(type);
+      setIsTransitioning(false);
+    }, 500);
+  }, []);
+
+  // Handle exiting building
+  const handleExitBuilding = useCallback(() => {
+    setInsideBuilding(null);
   }, []);
 
   // Global keyboard handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Close modal with Escape
+      // Don't process keys if inside a building (BuildingInterior handles its own keys)
+      if (insideBuilding) return;
+
+      // Close chat with Escape
       if (e.key === 'Escape') {
-        if (activeModal) {
-          setActiveModal(null);
-          return;
-        }
         if (isChatting) {
           setChatInput('');
           setIsChatting(false);
           return;
         }
       }
-
-      // Don't process other keys if modal is open
-      if (activeModal) return;
 
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -442,7 +503,7 @@ export const Game3D: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isChatting, handleSendMessage, activeModal]);
+  }, [isChatting, handleSendMessage, insideBuilding]);
 
   if (!user) return null;
 
@@ -467,15 +528,22 @@ export const Game3D: React.FC = () => {
           onMove={movePlayer}
           onStop={stopPlayer}
           isChatting={isChatting}
-          isModalOpen={activeModal !== null}
+          isModalOpen={insideBuilding !== null || isTransitioning}
           onBuildingInteract={handleBuildingInteract}
           playerWorldPosition={playerWorldPosition}
           setPlayerWorldPosition={setPlayerWorldPosition}
         />
       </Canvas>
 
-      {/* Portfolio Modal */}
-      <PortfolioModal type={activeModal} onClose={() => setActiveModal(null)} />
+      {/* Building Interior */}
+      {insideBuilding && (
+        <BuildingInterior type={insideBuilding} onExit={handleExitBuilding} />
+      )}
+
+      {/* Transition overlay */}
+      {isTransitioning && (
+        <div className="fixed inset-0 bg-black z-40 animate-pulse" />
+      )}
 
       {/* UI Overlay */}
       <div className="absolute top-4 left-4 bg-black/70 text-white px-4 py-2 rounded-lg">

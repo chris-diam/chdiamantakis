@@ -74,8 +74,8 @@ export function Astronaut3D({ character, direction, isMoving, scale = 1 }: Astro
     switch (direction) {
       case 'up': return Math.PI;
       case 'down': return 0;
-      case 'left': return Math.PI / 2;
-      case 'right': return -Math.PI / 2;
+      case 'left': return -Math.PI / 2;  // Face left (-X direction)
+      case 'right': return Math.PI / 2;   // Face right (+X direction)
       default: return 0;
     }
   }, [direction]);

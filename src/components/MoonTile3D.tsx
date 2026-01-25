@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { TileType } from '../types';
@@ -59,33 +59,6 @@ function MoonDustTile({ position, variant = 0 }: { position: [number, number, nu
   );
 }
 
-// Crater tile (not walkable)
-function CraterTile({ position, variant = 0 }: { position: [number, number, number]; variant?: number }) {
-  const craterDepth = 0.15 + (variant % 3) * 0.05;
-
-  return (
-    <group position={position}>
-      {/* Crater rim */}
-      <mesh position={[0, 0.05, 0]} receiveShadow>
-        <torusGeometry args={[0.4, 0.1, 8, 16]} />
-        <meshStandardMaterial color={MOON_COLORS.dustLight} roughness={0.9} />
-      </mesh>
-
-      {/* Crater interior */}
-      <mesh position={[0, -craterDepth / 2, 0]}>
-        <cylinderGeometry args={[0.35, 0.25, craterDepth, 16]} />
-        <meshStandardMaterial color={MOON_COLORS.crater} roughness={0.95} />
-      </mesh>
-
-      {/* Dark bottom */}
-      <mesh position={[0, -craterDepth, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.25, 16]} />
-        <meshStandardMaterial color={MOON_COLORS.rockDark} roughness={1} />
-      </mesh>
-    </group>
-  );
-}
-
 // Moon rock formation (not walkable, replaces trees)
 function MoonRockTile({ position, variant = 0 }: { position: [number, number, number]; variant?: number }) {
   const rockHeight = 0.5 + (variant % 3) * 0.3;
@@ -118,7 +91,7 @@ function MoonRockTile({ position, variant = 0 }: { position: [number, number, nu
 }
 
 // Path on moon surface (compacted regolith)
-function MoonPathTile({ position, variant = 0 }: { position: [number, number, number]; variant?: number }) {
+function MoonPathTile({ position }: { position: [number, number, number]; variant?: number }) {
   return (
     <group position={position}>
       <mesh position={[0, 0.02, 0]} receiveShadow>
@@ -250,7 +223,7 @@ function MoonBaseTile({ position, variant = 0 }: { position: [number, number, nu
 }
 
 // Fence replacement - energy barrier posts
-function EnergyBarrierTile({ position, variant = 0 }: { position: [number, number, number]; variant?: number }) {
+function EnergyBarrierTile({ position }: { position: [number, number, number]; variant?: number }) {
   const beamRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
