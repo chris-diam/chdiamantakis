@@ -1,0 +1,24 @@
+# Fly.io configuration
+# Deploy with: fly launch --dockerfile Dockerfile.backend
+app = "chdiamantakis-api"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile.backend"
+
+[env]
+  PORT = "3001"
+  NODE_ENV = "production"
+  CLIENT_URL = "https://chris-diam.github.io"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256

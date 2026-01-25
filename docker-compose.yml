@@ -1,6 +1,25 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3001/api}
+        - VITE_SOCKET_URL=${VITE_SOCKET_URL:-http://localhost:3001}
+    ports:
+      - "80:80"      # Frontend
+      - "3001:3001"  # Backend API & Socket
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/pokemon-world
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost}
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
   mongodb:
     image: mongo:7.0
     container_name: pokemon-world-mongo
